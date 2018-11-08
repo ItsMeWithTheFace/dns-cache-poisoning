@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+  alice:
+    build: ./alice 
+    image: thierrysans/alice:dns-spoofing
+    container_name: alice
+    tty: true
+    restart: always
+    networks:
+      legitimate:
+        ipv4_address: 10.0.0.2
+    cap_add:
+      - NET_ADMIN
+
+  mallory:
+    build: ./mallory
+    image: thierrysans/mallory:dns-spoofing
+    container_name: mallory
+    tty: true
+    restart: always
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    volumes:
+        - .:/shared
+    networks:
+      legitimate:
+        ipv4_address: 10.0.0.3
+      malicious:
+        ipv4_address: 10.0.1.3
+  
+  server:
+    build: ./server
+    image: rakinu/server:dns-spoofing
+    container_name: server
+    tty: true
+    restart: always
+    networks:
+      legitimate:
+        ipv4_address: 10.0.0.4
+    environment:
+      - WEBMIN_ENABLED=false
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+      - "80:80/tcp"
+      - "10000:10000/tcp"
+    cap_add:
+      - NET_ADMIN
+    volumes:
+        - ./server:/data
+  
+  wireshark:
+    image: thierrysans/wireshark:malicious-gateway
+    container_name: wireshark
+    tty: true
+    network_mode: service:alice
+
+networks:
+  legitimate:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+  malicious:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24

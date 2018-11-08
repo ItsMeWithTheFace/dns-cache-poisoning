@@ -1,0 +1,14 @@
+options {
+	directory "/var/cache/bind";
+
+	// resolve recursive DNS queries
+	recursion yes;
+
+	// access control list would be everyone
+	allow-query { any; };
+
+	dnssec-validation no;
+
+	auth-nxdomain no;    # conform to RFC1035
+	listen-on-v6 { any; };
+};
