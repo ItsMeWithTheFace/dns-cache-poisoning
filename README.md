@@ -26,7 +26,7 @@ In order to build the project, run the following commands:
    python3 /shared/mallory/attack.py
    ```
 5. Let the attack run and restart Mallory after some time
-6. If Alice tries to query `sec-commerce.seclab.space`
+6. If Alice tries to query `sec-commerce.seclab.space` she'll get Mallory's IP
 
 ## Explanation
 Essentially what `attack.py` does is create 10 processes, each of which queries the DNS server to trigger the recursive resolution of the fake hostname and sends 50 fake response packets every few milliseconds. The intention is that the DNS server accepts one of these fake response packets and caches the result so that when Alice tries to query the same hostname, she'll get redirected to the spoofed address.
